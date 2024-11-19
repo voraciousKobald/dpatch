@@ -16,7 +16,7 @@
 -   In order to feed the right input to the script, make sure to highlight the file path that is printed to the screen that has the selection you want and do `Ctrl+Shift+C` to copy it
 -   Then, do `Ctrl+Shift+V` to paste the file path and hit `ENTER`
 -   Once the patch has been generated, follow the instructions and replace the original squashfs with the new one. (The script tells you where inside the ISO the squashfs is located so dont worry.)
--   Software i'd reccomend for applying the patch is [ISO Master] (https://aur.archlinux.org/packages/isomaster "ISO Master at the AUR")
+-   Software i'd reccomend for applying the patch is [ISO Master](https://aur.archlinux.org/packages/isomaster "ISO Master at the AUR")
 -   ISO Master might not be the best software for this, but it is the only one I could find, feel free to look for alternatives if you dont like ISO Master.
 
 ## TESTED DISTROS
