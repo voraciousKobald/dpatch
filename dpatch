@@ -1,0 +1,109 @@
+#/bin/bash
+
+: <<'SECTIONS_EXPLAINED'
+1:	This code is where a lot of the variables used later on
+in the script are defined, it is also where the user is prompted to select
+a Live ISO from ~/dpatches/distros
+
+2:	This loop couldve been done better, it basically searches the entire Live ISO
+for any file that can be identified as a squashfs, writes the file path to that squashfs to a map file inside the help folder,
+and it creates a dummy of the squashfs to store the name of it, since you want to make sure that the name of the patch is identical to the original
+so that the Live ISO doesnt freak out when you try to boot it up. The dummy is utilized in section 5.
+
+3:	This small step is very important, you dont want to clutter the user's /mnt directory with garbage.
+
+4:	This is the fun part, it searches ~/dpatches/MYSCRIPTS for any directory. The user is free to put anything inside those
+directories. A future plan is to implement an API to extend the functionality of this script so you can do much more, like append to
+the .bashrc of the root file inside the squashfs-root. Unfortunately, I dont know how to do this.
+
+5:	This is the final step of the process where the squashfs-root is compiled into a new squashfs with the same name as the original, 
+this is where the dummy comes into play. I store the name of the dummy inside a variable and kill the dummy,then i feed that variable into
+the mksquashfs command. Then, I give instructions to the user on how to patch the Live ISO they chose.
+SECTIONS_EXPLAINED
+
+
+
+
+#SECTION 1:
+clear;
+echo -e "\e[32mif this is empty, do Ctrl+c & place a distro ISO inside ~/dpatches/distros !\e[0m";
+ls ~/dpatches/distros | grep "\.iso$";
+echo -e "\nEnd of list\n"
+read -p 'LIVEISO: ' li;												# li stands for live iso
+ISO=~/dpatches/distros/"$li"
+name=$(basename "$li" .iso | tr -d '\-_0123456789')								# placeholder name for the patch folder, it has been truncated to hopefully make it easier to parse.
+sudo mkdir /mnt/LI;
+mkdir ~/dpatches/patches/"$name";
+mkdir ~/dpatches/patches/"$name"/squashfs-root;
+mkdir ~/dpatches/patches/"$name"/help;
+echo -e "\nmounting $ISO to /mnt/LI ...";
+sudo mount $ISO /mnt/LI;
+echo -e "\nsearching for squashfs file in $li ...\n";
+
+
+
+
+#SECTION 2:
+cd /mnt/LI;
+if [ "$(find . -type f -exec bash -c '[[ "$( file -b "$1" )" == *Squashfs* ]]' bash {} \; -print | wc -l)" = '1' ]; then	# Slow but necessary in some cases
+find . -type f -exec bash -c '
+	for pathname do
+		case $( file -b "$pathname" ) in
+			*Squashfs*) ;;
+			*) continue
+		esac
+			dummy=$(basename $pathname)								# Stores name of clone as string
+			printf "#" > ~/dpatches/patches/'$name'/"$dummy";					# Creates empty clone of the squashfs
+			sudo unsquashfs -dest ~/dpatches/patches/'$name'/squashfs-root $pathname;
+			cd ~/dpatches/patches/'$name';
+			printf "$pathname" > ./help/map;
+	done' bash {} +;
+	else
+	clear;
+	echo -e "\e[31mApologies, it seems that this Live ISO is incompatible with this script At the moment.\e[0m";
+	echo unmounting /mnt/LI;
+	cd ~/dpatches;
+	sudo rm -r ~/dpatches/patches/"$name";
+	sudo umount /mnt/LI;
+	sleep 5;
+	sudo rmdir /mnt/LI;
+	exit 1;
+fi				# Some distros are unsupported, like: openSUSE, Chimera Linux, and Alpine. openSUSE has 7 squashfs for some reason, Chimera Linux uses EROFS instead of squashfs, and Alpine functions off of black magic. Unfortunately, I have no way of catching Alpine with this if statement.
+cd ~/dpatches
+echo unmounting /mnt/LI ...;
+sudo umount /mnt/LI;
+sleep 5;
+
+
+
+
+#SECTION 3:
+echo done;
+sudo rmdir /mnt/LI;
+clear;
+
+
+
+
+#SECTION 4:
+echo -e "\e[32mpick which script pack from ~/dpatches/MYSCRIPTS to load into the home folder of the squashfs\e[0m";
+ls -d ~/dpatches/MYSCRIPTS/*/;
+echo -e "\nEnd of list\n"
+read -p 'SCRIPT-PACK:	' sp;
+sudo cp -r $sp ~/dpatches/patches/"$name"/squashfs-root/home;							# home was the only folder that i found didnt break the iso when you modified it.
+clear;
+echo -e "\e[32mName your patch\e[0m"
+read -p 'NAME:	' NME;
+mv ~/dpatches/patches/"$name" ~/dpatches/patches/"$NME";
+
+
+
+
+#SECTION 5:
+sfs=$(find ~/dpatches/patches/"$NME"/ -maxdepth 1 -type f -printf "%f\n");					# Stores clone name as string
+cd ~/dpatches/patches/"$NME";
+rm $sfs;													# Annihilates clone
+sudo mksquashfs squashfs-root $sfs; 										# Replaces clone with real squashfs
+clear;
+map=$(echo $(<~/dpatches/patches/"$NME"/help/map));
+echo -e "\e[32mPatch has been created! Now all you need to do is replace \e[31m"$map"\e[0m\e[32m with \e[0m\e[35m"$sfs"\e[0m\e[32m inside \e[0m\e[31m"$li"\e[0m \e[32musing a program like ISO Master\e[0m\n\n";
