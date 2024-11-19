@@ -1,0 +1,30 @@
+#!/bin/bash
+set -e
+UTIL=dpatch
+DIR=$PWD
+read -p "THIS WILL ADD AN ALIAS TO ~/.bashrc AND CREATE ~/dpatches, DO YOU CONSENT? (Y/N)       " consent
+case "$consent" in
+	y|Y ) echo "THANK YOU, YOU CAN ALWAYS REMOVE THE LINE ADDED IN ~/.bashrc AND REMOVE ~/dpatches IF COMPLICATIONS ARISE!";;
+	n|N ) echo "UNDERSTANDABLE, DONT FORGET TO DELETE THIS FILE FROM YOUR COMPUTER SO IT DOES NOT TAKE UP SPACE :)"; exit;;
+	* ) echo "I DONT UNDERSTAND"
+esac
+
+set +e
+aliasline="alias "$UTIL"='bash $DIR/$UTIL'"
+isinfile=$(grep "$aliasline" $HOME/.bashrc)
+
+if [ -z "$isinfile" ]; then
+    echo $aliasline >> $HOME/.bashrc
+    mkdir ~/dpatches
+    mkdir ~/dpatches/distros
+    mkdir ~/dpatches/MYSCRIPTS
+    mkdir ~/dpatches/patches
+    #mkdir ~/dpatches/EXTENSIONS	# To be implemented
+	echo -e "SETUP COMPLETE, ALIAS \"$UTIL\" HAS BEEN APPENDED TO ~/.bashrc & ~/dpatches HAS BEEN CREATED, RUN \"exec bash\" OR RESTART TERMINAL"
+	exit 0
+else
+	echo "ALIAS ALREADY IN BASHRC, EXITING"
+	exit 1
+fi
+
+set -e
