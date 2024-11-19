@@ -18,7 +18,7 @@
 -   Once the patch has been generated, follow the instructions and replace the original squashfs with the new one. (The script tells you where inside the ISO the squashfs is located so dont worry.)
 -   Software i'd reccomend for applying the patch is [ISO Master](https://aur.archlinux.org/packages/isomaster "ISO Master at the AUR")
 -   ISO Master might not be the best software for this, but it is the only one I could find, feel free to look for alternatives if you dont like ISO Master.
--   Once you are booted into the Live ISO, navigate to the /home folder, that is where your folder went.
+-   Once you are booted into the Live ISO, navigate to the `/home` folder, that is where your folder went.
 
 ## TESTED DISTROS
 *   Gentoo              Works
