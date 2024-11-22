@@ -6,7 +6,7 @@
 *   SUDO
 *   squashfs-tools
 ## WHAT IT IS
--   This utility assists you in loading your own personal scripts/files into (almost) any Live ISO image you wish.
+-   This utility assists you in loading your own personal scripts/files into (almost) any Live ISO image you wish. Also supports extensions to do further manipulation of the squashfs before compilation, check out extension_examples! 
 
 ## HOW TO USE IT
 -   First, make sure you have git installed, and enter `git clone https://github.com/voraciousKobald/dpatch` into your terminal and navigate to the cloned repository and run `bash SETUP`, this will add an alias to your `~/.bashrc` and create 
@@ -20,14 +20,14 @@
 -   ISO Master might not be the best software for this, but it is the only one I could find, feel free to look for alternatives if you dont like ISO Master.
 
 ## TESTED DISTROS
-*   Gentoo              Works
-*   Arch Linux          Works
-*   Debian              Works
-*   Linux Mint          Works
-*   Fedora              Works
-*   MocaccinoOS         Works
-*   openSUSE Tumbleweed ERR         (This distro uses 7 squashfs files in the Live ISO!!)
-*   Alpine Linux        ERR         (The contents of the squashfs are incomprehensible, I dont think I can ever add support for this distro.)
-*   Chimera Linux       ERR         (Uses EROFS instead of squashfs, meaning my script cant work on it, I dont see the point in adding support for this distro since its the only one off the top of my head that uses EROFS. Correct me if I am wrong.)
+*   Gentoo                      Works
+*   Arch Linux                  Works
+*   Debian                      Works
+*   Linux Mint                  Works
+*   Fedora                      Works
+*   MocaccinoOS                 Works
+*   openSUSE Tumbleweed         ERR         (This distro uses 7 squashfs files in the Live ISO!!)
+*   Alpine Linux                ERR         (The contents of the squashfs are incomprehensible, I dont think I can ever add support for this distro.)
+*   Chimera Linux               ERR         (Uses EROFS instead of squashfs, meaning my script cant work on it, I dont see the point in adding support for this distro since its the only one off the top of my head that uses EROFS. Correct me if I am wrong.)
 
 
