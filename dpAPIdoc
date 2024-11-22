@@ -1,0 +1,10 @@
+								API DOCUMENTATION
+
+varaibles:
+PATCHNAME_extAPI = the filepath to the named patch. Not sure what you'd do with this, but I am documenting it here in case you need it.
+
+
+functions:
+scan "folder" "file" = allows you to scan any folder inside the ISO for a specific file, this then modifies the hit variable. 1 -> yes 0 -> no. Intended to be used in if statements to check if a certain file exists.
+
+import "source" "destination" = allows you to append any text inside a source file within the extension folder to any file inside the ISO.
