@@ -8,3 +8,8 @@ functions:
 scan "folder" "file" = allows you to scan any folder inside the ISO for a specific file, this then modifies the hit variable. 1 -> yes 0 -> no. Intended to be used in if statements to check if a certain file exists.
 
 import "source" "destination" = allows you to append any text inside a source file within the extension folder to any file inside the ISO.
+
+formatting:
+In order to have your extension recognized, create a folder with a master script called extension.sh, and place that folder inside ~/dpatches/EXTENSIONS
+extensions can only source files from its own folder, dont try to source outside the folder, I cant guarentee it will work. This means you cannot do something like
+"import "/etc/issue" "/etc/issue"" because this is outside of the extension folder.
