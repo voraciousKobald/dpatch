@@ -19,7 +19,7 @@ if [ -z "$isinfile" ]; then
     mkdir ~/dpatches/distros
     mkdir ~/dpatches/MYSCRIPTS
     mkdir ~/dpatches/patches
-    #mkdir ~/dpatches/EXTENSIONS	# To be implemented
+    mkdir ~/dpatches/EXTENSIONS
 	echo -e "SETUP COMPLETE, ALIAS \"$UTIL\" HAS BEEN APPENDED TO ~/.bashrc & ~/dpatches HAS BEEN CREATED, RUN \"exec bash\" OR RESTART TERMINAL"
 	exit 0
 else
