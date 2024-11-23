@@ -25,24 +25,27 @@ this is where the dummy comes into play. I feed that variable into the mksquashf
 to patch the Live ISO they chose.
 SECTIONS_EXPLAINED
 
-
-
+solidcolortxt () {
+printf "\033[$1m$2\033[0m"
+}
 
 #								SECTION 1:
 clear;
-echo -e "\e[32mif this is empty, do Ctrl+c & place a distro ISO inside ~/dpatches/distros !\e[0m";
+solidcolortxt "32" "if this is empty, do Ctrl+c & place a distro ISO inside ~/dpatches/distros !\n\n";
 ls ~/dpatches/distros | grep "\.iso$";
-echo -e "\nEnd of list\n"
-read -p 'LIVEISO: ' li;												# li stands for live iso
+printf "\nEnd of list\n\n"
+read -p 'LIVEISO: ' li;														# li stands for live iso
 ISO=~/dpatches/distros/"$li"
-name=$(basename "$li" .iso | tr -d '\-_0123456789')								# placeholder name for the patch folder, it has been truncated to hopefully make it easier to parse.
+name=$(basename "$li" .iso | tr -d '\-_0123456789')										# placeholder name for the patch folder, it has been truncated to hopefully make it easier to parse.
 sudo mkdir /mnt/"$name";
+
 mkdir ~/dpatches/patches/"$name";
 mkdir ~/dpatches/patches/"$name"/squashfs-root;
 mkdir ~/dpatches/patches/"$name"/help;
-echo -e "\nmounting $ISO to /mnt/"$name" ...";
+
+printf "\nmounting $ISO to /mnt/$name ...\n\n";
 sudo mount $ISO /mnt/"$name";
-echo -e "\nsearching for squashfs file in $li ...\n";
+printf "\nsearching for squashfs file in $li ...\n\n";
 
 
 
@@ -58,14 +61,14 @@ find . -type f -exec bash -c '
 		esac
 			dummy=$(basename $pathname)								# Stores name of clone as string
 			printf "#" > ~/dpatches/patches/'$name'/"$dummy";					# Creates empty clone of the squashfs
-			echo -e "\e[32mFound squashfs \e[31m"$pathname"\e[0m\e[32m, proceeding to unpack contents to ~/dpatches/patches/'$name'/squashfs-root . . .\e[0m"
+			printf "\033[32mFound squashfs \033[31m"$pathname"\033[0m\033[32m, proceeding to unpack contents to ~/dpatches/patches/'$name'/squashfs-root . . .\033[0m\n";
 			sudo unsquashfs -dest ~/dpatches/patches/'$name'/squashfs-root $pathname;
 			cd ~/dpatches/patches/'$name';
 			printf "$pathname" > ./help/map;
 	done' bash {} +;
 	else
 	clear;
-	echo -e "\e[31mApologies, it seems that this Live ISO is incompatible with this script At the moment.\e[0m";
+	solidcolortxt "31" "Apologies, it seems that this Live ISO is incompatible with this script.";
 	echo unmounting /mnt/"$name";
 	cd ~/dpatches;
 	sudo rm -r ~/dpatches/patches/"$name";
@@ -73,7 +76,7 @@ find . -type f -exec bash -c '
 	sleep 5;
 	sudo rmdir /mnt/"$name";
 	exit 1;
-fi				# Some distros are unsupported, like: openSUSE, Chimera Linux, and Alpine. openSUSE has 7 squashfs for some reason, Chimera Linux uses EROFS instead of squashfs, and Alpine functions off of black magic. Unfortunately, I have no way of catching Alpine with this if statement.
+fi														# Some distros are unsupported, like: openSUSE, Chimera Linux, and Alpine. openSUSE has 7 squashfs for some reason, Chimera Linux uses EROFS instead of squashfs, and Alpine functions off of black magic. Unfortunately, I have no way of catching Alpine with this if statement.
 cd ~/dpatches
 echo unmounting /mnt/"$name" ...;
 sudo umount /mnt/"$name";
@@ -91,16 +94,16 @@ clear;
 
 
 #								SECTION 4:
-echo -e "\e[32mpick which script pack from ~/dpatches/MYSCRIPTS to load into the home folder of ~/dpatches/patches/'name'/squashfs-root\e[0m";
+solidcolortxt "32" "pick which script pack from ~/dpatches/MYSCRIPTS to load into the home folder of ~/dpatches/patches/'name'/squashfs-root\n\n"
 ls -d ~/dpatches/MYSCRIPTS/*/;
-echo -e "\nEnd of list\n"
+printf "\nEnd of list\n\n"
 read -p 'SCRIPT-PACK:	' sp;
 sudo cp -r $sp ~/dpatches/patches/"$name"/squashfs-root/home;							# home was the only folder that i found didnt break the iso when you modified it.
 clear;
-echo -e "\e[32mName your patch\e[0m"
+solidcolortxt "32" "Name your patch\n\n"
 read -p 'NAME:	' NME;
 mv ~/dpatches/patches/"$name" ~/dpatches/patches/"$NME";
-echo -e "created patch ~/dpatches/patches/'$NME'"
+printf "created patch ~/dpatches/patches/'$NME'\n\n"
 
 
 
@@ -114,43 +117,65 @@ cd ~/dpatches/patches/"$NME";
 
 
 #								SECTION 6:
-export PATCHNAME_extAPI="$HOME/dpatches/patches/$NME"								#  
+export PATCHFS_extAPI="$HOME/dpatches/patches/$NME/squashfs-root"
+export HLP_extAPI="$HOME/dpatches/patches/$NME/help"
+
 scan () {
-	if [ "$(sudo find $PATCHNAME_extAPI/squashfs-root/"$1" -name "$2" -printf "%f")" == "$2" ]; then
+	if [ "$(sudo find $PATCHFS_extAPI/"$1" -name "$2" -printf "%f")" == "$2" ]; then
+printf "P" > $HLP_extAPI/ext
 hit=1
 else
+printf "\033[31mThis extension is incompatible because $2 was not found.\033[0m\n"				# stdout for error
+printf "F" > $HLP_extAPI/ext
 hit=0
 fi
 }
 
 import () {
-	echo $(<./$1) | sudo tee -a $PATCHNAME_extAPI/squashfs-root/$2
+	printf "\n\033[33m$1 -> $2\033[0m\n"									# makes stdout prettier
+	cat ./$1 | sudo tee -a $PATCHFS_extAPI/$2
 }
+
+insertDIR () {
+	printf "\n\033[33m+$1\033[0m\n"										# makes stdout prettier
+	sudo mkdir $PATCHFS_extAPI/$1
+}
+
+extHEAD () {
+	printf "\n\033[32m\t\t$1\033[0m\n\n"
+}
+
 export -f scan													# scan "folder" "file"
 export -f import												# import "source" "destination"
+export -f insertDIR												# insertDIR "name"
+export -f extHEAD												# extHEAD "text"
 
 
 
-while true; do
+while true; do													# entrypoint to the API
 read -p "Apply extension? [Y/N]	" yn1
 case $yn1 in
 	[nN] )
 		clear;
-		echo -e "\e[31mSkipping extension . . .\e[0m";
+		solidcolortxt "31" "Skipping extension . . .\n\n";
 		break;;
 	[yY] )
 		clear;
-		echo -e "\e[32mSelect extension\e[0m\n";
-		ls -d ~/dpatches/EXTENSIONS/*/;
-		echo -e "\nEnd of list\n";
+		solidcolortxt "32" "Select extension\n\n";
+		ls -1 -d ~/dpatches/EXTENSIONS/*/;
+		printf "\nEnd of list\n\n";
 		read -p "extension pack: " ext;
 		cd "$ext";
 		bash ./extension.sh;										# Master file for the extension
 		cd ~/dpatches/patches/"$NME";
-		echo -e "\e[32mextension applied\e[0m\n";;
+		if [ "$(cat $HLP_extAPI/ext)" = 'P' ]; then
+		solidcolortxt "32" "\nextension applied\n\n"
+		else
+		solidcolortxt "31" "\nfailed to apply extension\n\n"
+		fi;;
 	* )
 		clear;
-		printf "Sorry, say that again?";
+		printf "\nSorry, say that again?\n";
 		continue;;
 esac
 done
@@ -160,7 +185,7 @@ done
 #								SECTION 7:
 sleep 5;
 rm $sfs;
-sudo mksquashfs squashfs-root $sfs; 											# Replaces clone with real squashfs
+sudo mksquashfs squashfs-root $sfs; 										# Replaces clone with real squashfs
 clear;
 map=$(echo $(<~/dpatches/patches/"$NME"/help/map));
-echo -e "\e[32mPatch has been created! Now all you need to do is replace \e[31m"$map"\e[0m\e[32m with \e[0m\e[35m"$sfs"\e[0m\e[32m inside \e[0m\e[31m"$li"\e[0m \e[32m\nusing a program like ISO Master\e[0m\n\n";
+printf "\033[32mPatch has been created! Now all you need to do is replace \033[31m"$map"\033[0m\033[32m with \033[0m\033[35m"$sfs"\033[0m\033[32m inside \033[0m\033[31m"$li"\033[0m \033[32m\nusing a program like ISO Master\033[0m\n\n";
