@@ -9,6 +9,7 @@ hit = variable modified by the scan function to indicate whether the file you im
 functions:
 scan "folder" "file" = allows you to scan any folder inside the ISO for a specific file, this then modifies the hit variable. Intended to be used in if statements to check if a certain file exists.
 
+
 import "source" "destination" = allows you to append any text inside a source file within the extension folder to any text file inside the ISO.
 
 insertDIR "name" = allows you to create an empty folder inside the ISO in any location. An example would be insertDIR "mnt/lfs"
