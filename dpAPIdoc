@@ -1,10 +1,37 @@
 								API DOCUMENTATION
 
 varaibles:
-PATCHNAME_extAPI = the filepath to the named patch. Not sure what you'd do with this, but I am documenting it here in case you need it.
+PATCHFS_extAPI = string storing the path to the squashfs-root folder.
+HLP_extAPI = string storing the path to the help folder.
+hit = variable modified by the scan function to indicate whether the file you implemented a check for was detected. 1 -> yes 0 -> no.
 
 
 functions:
-scan "folder" "file" = allows you to scan any folder inside the ISO for a specific file, this then modifies the hit variable. 1 -> yes 0 -> no. Intended to be used in if statements to check if a certain file exists.
+scan "folder" "file" = allows you to scan any folder inside the ISO for a specific file, this then modifies the hit variable. Intended to be used in if statements to check if a certain file exists.
 
-import "source" "destination" = allows you to append any text inside a source file within the extension folder to any file inside the ISO.
+import "source" "destination" = allows you to append any text inside a source file within the extension folder to any text file inside the ISO.
+
+insertDIR "name" = allows you to create an empty folder inside the ISO in any location. An example would be insertDIR "mnt/lfs"
+
+extHEAD "text" = provides a way for extension authors to title their extension in the stdout when the extension is run.
+
+
+
+The extension.sh file inside your extension folder is supposed to act like the distributor, it doesnt have much complexity to it.
+
+
+example code for extension.sh
+
+'
+#!/bin/bash
+
+scan "root" ".bashrc"
+if [ $hit = 1 ]; then
+(your code goes here)
+fi
+'
+
+Error handling is done from within each API function, so you do not have to worry about implementing error handling your self.
+Your extension.sh file should always implement a check to avoid errors, this may be easy or difficult depending on what you are trying to achieve.
+The above example is testing to see if the distribution uses bash, and a surefire way to determine this is to see if it possesses a .bashrc file inside its root folder.
+Before writing your extension, think of a test you will do before executing your extension, this is important.
