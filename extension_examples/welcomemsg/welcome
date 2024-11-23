@@ -1,6 +1,6 @@
-cat /etc/*-release > /tmp/d;
-head -n2 /tmp/d > /tmp/dist;
+cat /etc/*-release | grep ID | head -n1 | cut -d '=' -f2 > /tmp/dist
 DIST=$(cat /tmp/dist);
 
-echo -e "\e[32mHELLO THERE, THIS IS A MODIFIED COPY OF\e[35m$DIST.\e[0m";
-rm -f /tmp/d /tmp/dist;
+
+echo -e "\e[32mHELLO THERE, THIS IS A MODIFIED COPY OF \e[35m$DIST.\e[0m";
+rm -f /tmp/dist;
