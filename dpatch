@@ -32,9 +32,18 @@ printf "\033[$1m$2\033[0m"
 #								SECTION 1:
 clear;
 solidcolortxt "32" "if this is empty, do Ctrl+c & place a distro ISO inside ~/dpatches/distros !\n\n";
-ls ~/dpatches/distros | grep "\.iso$";
-printf "\nEnd of list\n\n"
-read -p 'LIVEISO: ' li;														# li stands for live iso
+
+PS3="Pick your poison )	"
+DISTROS="$(ls ~/dpatches/distros | grep "\.iso$")";
+select filename in ${DISTROS};
+do
+	li=${filename};
+	case $li in
+		'') printf "$0: Whoops, you messed up!\n\n" >&2; exit 1;;							# to keep the demons at bay
+	esac
+	break;
+done
+
 ISO=~/dpatches/distros/"$li"
 name=$(basename "$li" .iso | tr -d '\-_0123456789')										# placeholder name for the patch folder, it has been truncated to hopefully make it easier to parse.
 sudo mkdir /mnt/"$name";
@@ -95,9 +104,17 @@ clear;
 
 #								SECTION 4:
 solidcolortxt "32" "pick which script pack from ~/dpatches/MYSCRIPTS to load into the home folder of ~/dpatches/patches/'name'/squashfs-root\n\n"
-ls -d ~/dpatches/MYSCRIPTS/*/;
-printf "\nEnd of list\n\n"
-read -p 'SCRIPT-PACK:	' sp;
+
+PACKS="$(ls -d ~/dpatches/MYSCRIPTS/*/)";
+select packname in ${PACKS};
+do
+	sp=${packname};
+	case $sp in
+		'') printf "$0: Whoops, you messed up!" >&2; exit 1;;						# to keep the demons at bay
+	esac
+	break;
+done
+
 sudo cp -r $sp ~/dpatches/patches/"$name"/squashfs-root/home;							# home was the only folder that i found didnt break the iso when you modified it.
 clear;
 solidcolortxt "32" "Name your patch\n\n"
@@ -162,9 +179,17 @@ case $yn1 in
 	[yY] )
 		clear;
 		solidcolortxt "32" "Select extension\n\n";
-		ls -1 -d ~/dpatches/EXTENSIONS/*/;
-		printf "\nEnd of list\n\n";
-		read -p "extension pack: " ext;
+		
+		epack="$(ls -d ~/dpatches/EXTENSIONS/*/)";
+		select extension in ${epack};
+		do
+			ext=${extension};
+			case $ext in
+				'') printf "$0: Whoops, you messed up!\n\n" >&2; exit 1;;			# to keep the demons at bay
+			esac
+			break;
+		done
+
 		cd "$ext";
 		bash ./extension.sh;										# Master file for the extension
 		cd ~/dpatches/patches/"$NME";
