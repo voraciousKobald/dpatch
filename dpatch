@@ -138,7 +138,7 @@ import () {
 
 insertDIR () {
 	printf "\n\033[33m+$1\033[0m\n"										# makes stdout prettier
-	sudo mkdir $PATCHFS_extAPI/$1
+	sudo mkdir -pv $PATCHFS_extAPI/$1
 }
 
 extHEAD () {
