@@ -1,5 +1,3 @@
-cat /etc/*-release | grep ID | head -n1 | cut -d '=' -f2 > /tmp/dist
-DIST=$(cat /tmp/dist);
+DIST=$(cat /etc/*-release | grep ID | head -n1 | cut -d '=' -f2);
+printf "\033[32mHELLO THERE, THIS IS A MODIFIED COPY OF \033[35m$DIST.\033[0m\n\033[32mTHIS IS A KIT TO HELP YOU GET STARTED WITH LFS, ENJOY.\033[0m";
 
-echo -e "\e[32mHELLO THERE, THIS IS A MODIFIED COPY OF \e[35m$DIST.\e[0m\n\e[32mTHIS IS A KIT TO HELP YOU GET STARTED WITH LFS, ENJOY.\e[0m";
-rm -f /tmp/dist;
