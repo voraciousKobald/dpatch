@@ -25,6 +25,15 @@ this is where the dummy comes into play. I feed that variable into the mksquashf
 to patch the Live ISO they chose.
 SECTIONS_EXPLAINED
 
+empty_var_check () {
+variable=$1
+case $variable in
+	'') 
+		printf "Whoops, you messed up!\n\n" >&2;
+		exit 1;;
+esac
+}
+
 solidcolortxt () {
 printf "\033[$1m$2\033[0m"
 }
@@ -38,9 +47,7 @@ DISTROS="$(ls ~/dpatches/distros | grep "\.iso$")";
 select filename in ${DISTROS};
 do
 	li=${filename};
-	case $li in
-		'') printf "$0: Whoops, you messed up!\n\n" >&2; exit 1;;							# to keep the demons at bay
-	esac
+	empty_var_check "$li"
 	break;
 done
 
@@ -77,7 +84,7 @@ find . -type f -exec bash -c '
 	done' bash {} +;
 	else
 	clear;
-	solidcolortxt "31" "Apologies, it seems that this Live ISO is incompatible with this script.";
+	solidcolortxt "31" "Apologies, it seems that this Live ISO is incompatible with this script.\n\n";
 	echo unmounting /mnt/"$name";
 	cd ~/dpatches;
 	sudo rm -r ~/dpatches/patches/"$name";
@@ -109,9 +116,7 @@ PACKS="$(ls -d ~/dpatches/MYSCRIPTS/*/)";
 select packname in ${PACKS};
 do
 	sp=${packname};
-	case $sp in
-		'') printf "$0: Whoops, you messed up!" >&2; exit 1;;						# to keep the demons at bay
-	esac
+	empty_var_check "$sp"
 	break;
 done
 
@@ -184,9 +189,7 @@ case $yn1 in
 		select extension in ${epack};
 		do
 			ext=${extension};
-			case $ext in
-				'') printf "$0: Whoops, you messed up!\n\n" >&2; exit 1;;			# to keep the demons at bay
-			esac
+			empty_var_check "$ext"
 			break;
 		done
 
@@ -213,4 +216,4 @@ rm $sfs;
 sudo mksquashfs squashfs-root $sfs; 										# Replaces clone with real squashfs
 clear;
 map=$(echo $(<~/dpatches/patches/"$NME"/help/map));
-printf "\033[32mPatch has been created! Now all you need to do is replace \033[31m"$map"\033[0m\033[32m with \033[0m\033[35m"$sfs"\033[0m\033[32m inside \033[0m\033[31m"$li"\033[0m \033[32m\nusing a program like ISO Master\033[0m\n\n";
+printf "\033[32mPatch has been created! Now all you need to do is replace \033[31m$li\033[0m\033[32m squashfs \033[0m\033[31m"$map"\033[0m\033[32m with the squashfs inside ~/dpatches/patches/$NME \033[0m\033[35m"$sfs"\033[0m\033[32m\nusing a program like ISO Master\033[0m\n\n";
