@@ -14,7 +14,7 @@ aliasline="alias "$UTIL"='bash $DIR/$UTIL'"
 isinfile=$(grep "$aliasline" $HOME/.bashrc)
 
 if [ -z "$isinfile" ]; then
-    echo $aliasline >> $HOME/.bashrc
+    echo "$aliasline" >> $HOME/.bashrc
     mkdir ~/dpatches
     mkdir ~/dpatches/distros
     mkdir ~/dpatches/MYSCRIPTS
